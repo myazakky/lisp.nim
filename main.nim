@@ -1,4 +1,6 @@
-import tables
+import os
+import tables, sequtils
+import strutils
 
 import node, functions, parser, evaluation
 
@@ -17,12 +19,27 @@ environment = {
   "quote": LispNode(kind: OperationLiteral, operation: quote),
   "lambda": LispNode(kind: OperationLiteral, operation: lambdaExpression),
 
+  "display": LispNode(kind: OperationLiteral, operation: display),
+
   "exit": LispNode(kind: OperationLiteral, operation: exit)
 }.toTable
 
-stdout.write("👑 Wlecome to Pure Lisp 👑\n")
-while true:
-  stdout.write("lisp.nim> ")
+proc repl =
+  stdout.write("👑 Wlecome to Pure Lisp 👑\n")
+  while true:
+    stdout.write("lisp.nim> ")
+    var resultNode: LispNode
+    (resultNode, environment) = eval(stdin.readLine.parse, environment)
+    echo resultNode
+
+proc runProgram(programs: seq[string]) =
   var resultNode: LispNode
-  (resultNode, environment) = eval(stdin.readLine.parse, environment)
-  echo resultNode
+  for program in programs:
+    (resultNode, environment) = eval(program.parse, environment)
+
+if paramCount() == 0:
+  repl()
+else:
+  var f = open(paramStr(1), FileMode.fmRead)
+  defer: f.close()
+  runProgram(f.readAll.split("\n").filterIt(it != ""))

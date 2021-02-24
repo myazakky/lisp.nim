@@ -1,4 +1,5 @@
 import sequtils, tables
+import strutils
 
 import evaluation, node
 
@@ -105,6 +106,10 @@ func lambdaExpression*(env: Environment, nodes: varargs[LispNode]): EvaluationRe
     kind: OperationLiteral,
     operation: operation
   ), env)
+
+proc display*(env: Environment, n: varargs[LispNode]): EvaluationResult =
+  echo n.map(`$`).join("")
+  (LispNode(kind: NilLiteral), env)
 
 proc exit*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
   quit(0)
