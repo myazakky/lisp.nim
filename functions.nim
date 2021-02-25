@@ -108,7 +108,7 @@ func lambdaExpression*(env: Environment, nodes: varargs[LispNode]): EvaluationRe
   ), env)
 
 proc display*(env: Environment, n: varargs[LispNode]): EvaluationResult =
-  echo n.map(`$`).join("")
+  echo n.map(proc(x: LispNode): string = $eval(x, env).node).join("")
   (LispNode(kind: NilLiteral), env)
 
 proc exit*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
