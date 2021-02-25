@@ -66,11 +66,14 @@ func tokenize*(expression: string): TokenTree =
     elif character == '\'' and peeled[readAt + 1] == '(':
       skipTo = halfBlacketAt(peeled[(readAt + 2)..^1]) + readAt + 1
       let misic = tokenize(peeled[(readAt + 1)..skipTo])
-      result.children.add(TokenTree(
-        kind: Branch,
-        symbol: ".",
-        children: concat(@[TokenTree(kind: Leaf, symbol: misic.symbol)], misic.children)
-      ))
+      if misic.symbol == "":
+        result.children.add(TokenTree(kind: Branch, symbol: ".", children: @[]))
+      else:
+        result.children.add(TokenTree(
+          kind: Branch,
+          symbol: ".",
+          children: concat(@[TokenTree(kind: Leaf, symbol: misic.symbol)], misic.children)
+        ))
     elif readAt == 0:
       let word = readWord(peeled[readAt..^1])
       skipTo = word.len
