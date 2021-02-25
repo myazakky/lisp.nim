@@ -8,28 +8,28 @@ func `+`(a, b: LispNode): LispNode =
     kind: NumberLiteral,
     topValue: (a.topValue * b.bottomValue) + (a.bottomValue * b.topValue),
     bottomValue: (a.bottomValue * b.bottomValue)
-  )
+  ).simplifyFraction
 
 func `-`(a, b: LispNode): LispNode =
   LispNode(
     kind: NumberLiteral,
     topValue: (a.topValue * b.bottomValue) - (a.bottomValue * b.topValue),
     bottomValue: (a.bottomValue * b.bottomValue)
-  )
+  ).simplifyFraction
 
 func `*`(a, b: LispNode): LispNode =
   LispNode(
     kind: NumberLiteral,
     topValue: a.topValue * b.topValue,
     bottomValue: a.bottomValue * b.bottomValue
-  )
+  ).simplifyFraction
 
 func `/`(a, b: LispNode): LispNode =
   LispNode(
     kind: NumberLiteral,
     topValue: a.topValue * b.bottomValue,
     bottomValue: a.bottomValue * b.topValue
-  )
+  ).simplifyFraction
 
 func addition*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
   let evaluatedNodes = nodes.map(proc(x: LispNode): LispNode = eval(x, env).node)
@@ -67,24 +67,24 @@ func atom*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
   else:
     (LispNode(kind: BooleanLiteral, booleanValue: false), env)
 
-func eq*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
+proc eq*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
   let evaluatedNodes = nodes.map(proc(x: LispNode): LispNode = eval(x, env).node)
-
   let first = evaluatedNodes[0]
+
   if not evaluatedNodes.all(proc(x: LispNode): bool = x.kind == first.kind):
     (LispNode(kind: BooleanLiteral, booleanValue: false), env)
   else:
     let equal = case evaluatedNodes[0].kind
                  of IdentifierLiteral:
-                   nodes.all(proc(x: LispNode): bool = x.identifierValue == first.identifierValue)
+                   evaluatedNodes.all(proc(x: LispNode): bool = x.identifierValue == first.identifierValue)
                  of SymbolLiteral:
-                   nodes.all(proc(x: LispNode): bool = x.symbolValue == first.symbolValue)
+                   evaluatedNodes.all(proc(x: LispNode): bool = x.symbolValue == first.symbolValue)
                  of NumberLiteral:
-                   nodes.all(proc(x: LispNode): bool =
+                   evaluatedNodes.all(proc(x: LispNode): bool =
                      x.topValue == first.topValue and
                      x.bottomValue == first.bottomValue)
                  of BooleanLiteral:
-                   nodes.all(proc(x: LispNode): bool = x.booleanValue == first.booleanValue)
+                   evaluatedNodes.all(proc(x: LispNode): bool = x.booleanValue == first.booleanValue)
                  of NilLiteral: true
                  else: false
     (LispNode(kind: BooleanLiteral, booleanValue: equal), env)

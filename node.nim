@@ -1,4 +1,5 @@
 import strformat, tables
+from math import gcd
 
 type
   Environment* = Table[string, LispNode]
@@ -48,3 +49,11 @@ func `$`*(node: LispNode): string =
     of PairLiteral: fmt"'({$node.car} {$node.cdr})"
     of OperationLiteral: fmt"<operation>"
     of Expression: "exp"
+
+func simplifyFraction*(node: LispNode): LispNode =
+  let gratest = gcd(node.topValue, node.bottomValue)
+  LispNode(
+    kind: NumberLiteral,
+    topValue: (node.topValue / gratest).toInt,
+    bottomValue: (node.bottomValue / gratest).toInt
+  )
