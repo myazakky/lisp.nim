@@ -1,4 +1,4 @@
-import sequtils, tables
+import tables
 
 import node
 
