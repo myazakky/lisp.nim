@@ -5,29 +5,59 @@ import evaluation, node
 
 func `+`(a, b: LispNode): LispNode =
   LispNode(
-    kind: IntegerLiteral,
-    integerValue: a.integerValue + b.integerValue
+    kind: NumberLiteral,
+    topValue: (a.topValue * b.bottomValue) + (a.bottomValue * b.topValue),
+    bottomValue: (a.bottomValue * b.bottomValue)
+  )
+
+func `-`(a, b: LispNode): LispNode =
+  LispNode(
+    kind: NumberLiteral,
+    topValue: (a.topValue * b.bottomValue) - (a.bottomValue * b.topValue),
+    bottomValue: (a.bottomValue * b.bottomValue)
   )
 
 func `*`(a, b: LispNode): LispNode =
   LispNode(
-    kind: IntegerLiteral,
-    integerValue: a.integerValue * b.integerValue
+    kind: NumberLiteral,
+    topValue: a.topValue * b.topValue,
+    bottomValue: a.bottomValue * b.bottomValue
+  )
+
+func `/`(a, b: LispNode): LispNode =
+  LispNode(
+    kind: NumberLiteral,
+    topValue: a.topValue * b.bottomValue,
+    bottomValue: a.bottomValue * b.topValue
   )
 
 func addition*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
   let evaluatedNodes = nodes.map(proc(x: LispNode): LispNode = eval(x, env).node)
   (evaluatedNodes.foldl(
     a + b,
-    LispNode(kind: IntegerLiteral, integervalue: 0)),
+    LispNode(kind: NumberLiteral, topValue: 0, bottomValue: 1)),
    env)
+
+func subtraction*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
+  let evaluatedNodes = nodes.map(proc(x: LispNode): LispNode = eval(x, env).node)
+  if evaluatedNodes.len == 1:
+    ((LispNode(kind: NumberLiteral, topValue: 0, bottomValue: 1) - evaluatedNodes[0]), env)
+  else:
+    (evaluatedNodes.foldl(a - b), env)
 
 func multiplication*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
   let evaluatedNodes = nodes.map(proc(x: LispNode): LispNode = eval(x, env).node)
   (evaluatedNodes.foldl(
     a * b,
-    LispNode(kind: IntegerLiteral, integervalue: 1)),
+    LispNode(kind: NumberLiteral, topValue: 1, bottomValue: 1)),
    env)
+
+func division*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
+  let evaluatedNodes = nodes.map(proc(x: LispNode): LispNode = eval(x, env).node)
+  if evaluatedNodes.len == 1:
+    ((LispNode(kind: NumberLiteral, topValue: 1, bottomValue: 1) / evaluatedNodes[0]), env)
+  else:
+    (evaluatedNodes.foldl(a / b), env)
 
 func atom*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
   let evaluatedNodes = nodes.map(proc(x: LispNode): LispNode = eval(x, env).node)
@@ -49,8 +79,10 @@ func eq*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
                    nodes.all(proc(x: LispNode): bool = x.identifierValue == first.identifierValue)
                  of SymbolLiteral:
                    nodes.all(proc(x: LispNode): bool = x.symbolValue == first.symbolValue)
-                 of IntegerLiteral:
-                   nodes.all(proc(x: LispNode): bool = x.integerValue == first.integerValue)
+                 of NumberLiteral:
+                   nodes.all(proc(x: LispNode): bool =
+                     x.topValue == first.topValue and
+                     x.bottomValue == first.bottomValue)
                  of BooleanLiteral:
                    nodes.all(proc(x: LispNode): bool = x.booleanValue == first.booleanValue)
                  of NilLiteral: true

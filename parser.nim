@@ -87,8 +87,12 @@ func tokenize*(expression: string): TokenTree =
 
 func parse*(tree: TokenTree): LispNode =
   if tree.kind == Leaf:
-    if tree.symbol.match(re"^\d+$"):
-      LispNode(kind: IntegerLiteral, integerValue: tree.symbol.parseInt)
+    if tree.symbol.match(re"^-??\d+$"):
+      LispNode(
+        kind: NumberLiteral,
+        topValue: tree.symbol.parseInt,
+        bottomValue: 1
+      )
     elif tree.symbol in ["true", "false"]:
       LispNode(kind: BooleanLiteral, booleanValue: tree.symbol.parseBool)
     elif tree.symbol.match(re"^'\w+$"):

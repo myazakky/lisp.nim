@@ -7,7 +7,9 @@ import node, functions, parser, evaluation
 var environment: Environment
 environment = {
   "+": LispNode(kind: OperationLiteral, operation: addition),
+  "-": LispNode(kind: OperationLiteral, operation: subtraction),
   "*": LispNode(kind: OperationLiteral, operation: multiplication),
+  "/": LispNode(kind: OperationLiteral, operation: division),
   "atom": LispNode(kind: OperationLiteral, operation: atom),
   "eq": LispNode(kind: OperationLiteral, operation: eq),
   "car": LispNode(kind: OperationLiteral, operation: car),
