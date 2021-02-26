@@ -51,6 +51,9 @@ func tokenize*(expression: string): TokenTree =
   if expression[0] != '(':
     return TokenTree(kind: Leaf, symbol: readWord(expression))
 
+  if expression[^1] != ')':
+    raise newException(CatchableError, "Cannot find left bracket )")
+
   var skipTo: int
   let peeled = expression[1..^2]
   result = TokenTree(kind: Branch)
