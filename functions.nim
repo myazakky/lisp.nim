@@ -4,31 +4,59 @@ import strutils
 import evaluation, node
 
 func `+`(a, b: LispNode): LispNode =
-  LispNode(
-    kind: NumberLiteral,
-    topValue: (a.topValue * b.bottomValue) + (a.bottomValue * b.topValue),
-    bottomValue: (a.bottomValue * b.bottomValue)
-  ).simplifyFraction
+  if (a.kind, b.kind) == (FloatLiteral, FloatLiteral):
+    return LispNode(kind: FloatLiteral, floatValue: a.floatValue + b.floatValue)
+  elif (a.kind, b.kind) == (FloatLiteral, NumberLiteral):
+    return LispNode(kind: FloatLiteral, floatValue: a.floatValue + b.topvalue / b.bottomValue)
+  elif (a.kind, b.kind) == (NumberLiteral, FloatLiteral):
+    return LispNode(kind: FloatLiteral, floatValue: a.topValue / a.bottomValue + b.floatValue)
+  elif (a.kind, b.kind) == (NumberLiteral, NumberLiteral):
+    return LispNode(
+      kind: NumberLiteral,
+      topValue: (a.topValue * b.bottomValue) + (a.bottomValue * b.topValue),
+      bottomValue: (a.bottomValue * b.bottomValue)
+    ).simplifyFraction
 
 func `-`(a, b: LispNode): LispNode =
-  LispNode(
-    kind: NumberLiteral,
-    topValue: (a.topValue * b.bottomValue) - (a.bottomValue * b.topValue),
-    bottomValue: (a.bottomValue * b.bottomValue)
-  ).simplifyFraction
+  if (a.kind, b.kind) == (FloatLiteral, FloatLiteral):
+    return LispNode(kind: FloatLiteral, floatValue: a.floatValue - b.floatValue)
+  elif (a.kind, b.kind) == (FloatLiteral, NumberLiteral):
+    return LispNode(kind: FloatLiteral, floatValue: a.floatValue - b.topvalue / b.bottomValue)
+  elif (a.kind, b.kind) == (NumberLiteral, FloatLiteral):
+    return LispNode(kind: FloatLiteral, floatValue: a.topValue / a.bottomValue - b.floatValue)
+  elif (a.kind, b.kind) == (NumberLiteral, NumberLiteral):
+    return LispNode(
+      kind: NumberLiteral,
+      topValue: (a.topValue * b.bottomValue) - (a.bottomValue * b.topValue),
+      bottomValue: (a.bottomValue * b.bottomValue)
+    ).simplifyFraction
 
 func `*`(a, b: LispNode): LispNode =
-  LispNode(
-    kind: NumberLiteral,
-    topValue: a.topValue * b.topValue,
-    bottomValue: a.bottomValue * b.bottomValue
-  ).simplifyFraction
+  if (a.kind, b.kind) == (FloatLiteral, FloatLiteral):
+    return LispNode(kind: FloatLiteral, floatValue: a.floatValue * b.floatValue)
+  elif (a.kind, b.kind) == (FloatLiteral, NumberLiteral):
+    return LispNode(kind: FloatLiteral, floatValue: a.floatValue * (b.topvalue / b.bottomValue))
+  elif (a.kind, b.kind) == (NumberLiteral, FloatLiteral):
+    return LispNode(kind: FloatLiteral, floatValue: (a.topValue / a.bottomValue) * b.floatValue)
+  elif (a.kind, b.kind) == (NumberLiteral, NumberLiteral):
+    return LispNode(
+      kind: NumberLiteral,
+      topValue: a.topValue * b.topValue,
+      bottomValue: a.bottomValue * b.bottomValue
+    ).simplifyFraction
 
 func `/`(a, b: LispNode): LispNode =
-  if b.topValue == 0:
-    LispNode(kind: Error, message: "Diivision, by zero")
-  else:
-    LispNode(
+  if (b.kind == FloatLiteral and b.floatValue == 0.0) or (b.kind == NumberLiteral and b.topValue == 0):
+    return LispNode(kind: Error, message: "Division by zero")
+
+  if (a.kind, b.kind) == (FloatLiteral, FloatLiteral):
+    return LispNode(kind: FloatLiteral, floatValue: a.floatValue / b.floatValue)
+  elif (a.kind, b.kind) == (FloatLiteral, NumberLiteral):
+    return LispNode(kind: FloatLiteral, floatValue: a.floatValue / (b.topvalue / b.bottomValue))
+  elif (a.kind, b.kind) == (NumberLiteral, FloatLiteral):
+    return LispNode(kind: FloatLiteral, floatValue: (a.topValue / a.bottomValue) / b.floatValue)
+  elif (a.kind, b.kind) == (NumberLiteral, NumberLiteral):
+    return LispNode(
       kind: NumberLiteral,
       topValue: a.topValue * b.bottomValue,
       bottomValue: a.bottomValue * b.topValue

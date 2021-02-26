@@ -9,6 +9,7 @@ type
     IdentifierLiteral
     SymbolLiteral
     NumberLiteral
+    FloatLiteral
     BooleanLiteral
     NilLiteral
     PairLiteral
@@ -27,6 +28,8 @@ type
     of NumberLiteral:
       topValue*: int
       bottomValue*: int
+    of FloatLiteral:
+      floatValue*: float
     of BooleanLiteral:
       booleanValue*: bool
     of NilLiteral:
@@ -49,6 +52,8 @@ func `$`*(node: LispNode): string =
     of NumberLiteral:
       if node.bottomValue == 1: $node.topValue
       else: fmt"{node.topValue}/{node.bottomValue}"
+    of FloatLiteral:
+      $node.floatValue
     of BooleanLiteral: fmt"#{$node.booleanValue}"
     of NilLiteral: "'()"
     of PairLiteral: fmt"'({$node.car} {$node.cdr})"

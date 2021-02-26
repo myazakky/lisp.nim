@@ -99,6 +99,8 @@ func parse*(tree: TokenTree): LispNode =
         topValue: tree.symbol.parseInt,
         bottomValue: 1
       )
+    elif tree.symbol.match(re"^-??\d+\.\d+$"):
+      LispNode(kind: FloatLiteral, floatValue: tree.symbol.parseFloat)
     elif tree.symbol in ["true", "false"]:
       LispNode(kind: BooleanLiteral, booleanValue: tree.symbol.parseBool)
     elif tree.symbol.match(re"^'\w+$"):
