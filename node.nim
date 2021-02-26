@@ -13,6 +13,7 @@ type
     NilLiteral
     PairLiteral
     OperationLiteral
+    Error
     Expression
   
   LispNode* = ref LispNodeObj
@@ -38,6 +39,8 @@ type
     of Expression:
       operationLiteral*: LispNode
       arguments*: seq[LispNode]
+    of Error:
+      message*: string
 
 func `$`*(node: LispNode): string =
     case node.kind
@@ -49,6 +52,7 @@ func `$`*(node: LispNode): string =
     of PairLiteral: fmt"'({$node.car} {$node.cdr})"
     of OperationLiteral: fmt"<operation>"
     of Expression: "exp"
+    of Error: "Error: " & node.message
 
 func simplifyFraction*(node: LispNode): LispNode =
   let gratest = gcd(node.topValue, node.bottomValue)

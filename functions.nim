@@ -25,11 +25,14 @@ func `*`(a, b: LispNode): LispNode =
   ).simplifyFraction
 
 func `/`(a, b: LispNode): LispNode =
-  LispNode(
-    kind: NumberLiteral,
-    topValue: a.topValue * b.bottomValue,
-    bottomValue: a.bottomValue * b.topValue
-  ).simplifyFraction
+  if b.topValue == 0:
+    LispNode(kind: Error, message: "Diivision, by zero")
+  else:
+    LispNode(
+      kind: NumberLiteral,
+      topValue: a.topValue * b.bottomValue,
+      bottomValue: a.bottomValue * b.topValue
+    ).simplifyFraction
 
 func addition*(env: Environment, nodes: varargs[LispNode]): EvaluationResult =
   let evaluatedNodes = nodes.map(proc(x: LispNode): LispNode = eval(x, env).node)

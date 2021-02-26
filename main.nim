@@ -29,15 +29,21 @@ environment = {
 proc repl =
   stdout.write("👑 Wlecome to Pure Lisp 👑\n")
   while true:
-    stdout.write("lisp.nim> ")
     var resultNode: LispNode
-    (resultNode, environment) = eval(stdin.readLine.parse, environment)
-    echo resultNode
+    var newEnv = environment
+
+    stdout.write("lisp.nim> ")
+    (resultNode, newEnv) = eval(stdin.readLine.parse, environment)
+
+    if newEnv.hasKey("(ERROR)"): echo newEnv["(ERROR)"]
+    else: echo resultNode
 
 proc runProgram(programs: seq[string]) =
   var resultNode: LispNode
   for program in programs:
     (resultNode, environment) = eval(program.parse, environment)
+
+    if environment.hasKey("(ERROR)"): raise newException(Exception, $environment["(ERROR)"])
 
 if paramCount() == 0:
   repl()
