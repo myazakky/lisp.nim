@@ -46,7 +46,9 @@ func `$`*(node: LispNode): string =
     case node.kind
     of IdentifierLiteral: fmt"<Identifer: {node.identifierValue}>"
     of SymbolLiteral: fmt"'{node.symbolValue}"
-    of NumberLiteral: fmt"{node.topValue}/{node.bottomValue}"
+    of NumberLiteral:
+      if node.bottomValue == 1: $node.topValue
+      else: fmt"{node.topValue}/{node.bottomValue}"
     of BooleanLiteral: fmt"#{$node.booleanValue}"
     of NilLiteral: "'()"
     of PairLiteral: fmt"'({$node.car} {$node.cdr})"
