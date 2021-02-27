@@ -163,7 +163,7 @@ func lambdaExpression*(env: Environment, nodes: varargs[LispNode]): EvaluationRe
 
     for index, argument in arguments:
       appliedEnv[argument.identifierValue] = eval(n[index], e).node
-    eval(expression, appliedEnv)
+    (eval(expression, appliedEnv).node, e)
 
   (LispNode(
     kind: OperationLiteral,

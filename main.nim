@@ -35,8 +35,11 @@ proc repl =
     stdout.write("lisp.nim> ")
     (resultNode, newEnv) = eval(stdin.readLine.parse, environment)
 
-    if newEnv.hasKey("(ERROR)"): echo newEnv["(ERROR)"]
-    else: echo resultNode
+    if newEnv.hasKey("(ERROR)"):
+      echo newEnv["(ERROR)"]
+    else:
+      environment = newEnv
+      echo resultNode
 
 proc runProgram(programs: seq[string]) =
   var resultNode: LispNode
